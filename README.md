@@ -116,11 +116,19 @@ config的方法常見的有```make menuconfig```和```make nconfig```，後者�
 
 ## systemd
 
+### services
+
 首先當然是停用不必要的service，以```sudo systemctl disable```停用，列出已經啟用的service最簡單的方式就是利用bash-completion在disable後方按兩次```<tab>```鍵
 
 再來觀察```systemd-analyze blame```，不必要且沒有明確enable但自動載入的可以用```sudo systemctl mask```擋掉
 
-如果系統用久了就會發現```systemd-journal-flush.service```占很大的時間，但如果停用它journal就會留在/run而不是移到/var，關機了就沒了，解決方法是停用他但在其他時間手動flush，或是限制journal的大小避免花費太多時間，見```/etc/systemd/journald.conf```
+### journal flush
+
+如果系統用久了就會發現```systemd-journal-flush.service```占很大的時間，但如果停用它journal就會留在/run而不是移到/var，關機了就沒了，解決方法是停用他但在其他時機手動flush，或是限制journal的大小避免花費太多時間，見```/etc/systemd/journald.conf```
+
+### remount
+
+如果把fsck交由initramfs實行，systemd remount一次root就顯得多餘了，確定cmdline有rootflags=rw等想要的mount flags後可以把/etc/fstab的root註解掉避免remount
 
 
 
