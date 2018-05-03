@@ -52,7 +52,7 @@
 
 顯示部分的mod在UEFI底下預設會載入```video.lst```列出的四種：
 
-* ```efi_uga```: EFI時代的顯示方式
+* ```efi_uga```: 舊EFI時代的顯示方式
 
 * ```efi_gop```: UEFI大多是這個
 
@@ -67,6 +67,24 @@
 font觀察```/boot/grub/grub.cfg```，預設是載入Arch Linux的/usr裡面的，但可以發現另一個是直接```loadfont unicode```，直接搜尋```/boot/grub/font```裡面的，修改成這種方式可以跳過載入額外的分區
 
 ## Linux kernel
+
+自行針對自己的硬體編譯Linux kernel，可以減少kernel image的大小，進而減少GRUB載入kernel的時間，甚至可以增進一點效能
+
+在config時除了需不需要某項功能，還要考慮要將他built-in或者編譯成module
+
+built-in的話在開機時就會initialize，會增加開機時間，module時則是在module載入時才會運行
+
+我的建議是將掛載root分區會需要的功能都built-in，其餘有需要的編成module，交由systemd自動載入，以減少kernel image大小
+
+除此之外還要衡量kernel和initramfs的壓縮方式
+
+config的方法常見的有```make menuconfig```和```make nconfig```，後者比較新
+
+編譯時別忘了加```-j<n>```，其中n為最大同時jobs數，個人習慣實體核心數\*5，如果有-j後面不加數量就是不限制，gui或terminal可能會暫時當掉
+
+如果在別的地方編譯```make modules_install```可以用```INSTALL_MOD_PATH```變數指定複製到的路徑，方便把modules給分出來
+
+建議在桌機上編譯
 
 ## initramfs
 
