@@ -4,9 +4,13 @@
 
 雖然是在Arch Linux上實驗的，但想法都能套用在其他發行版上
 
+
+
 ## 要點
 
-減少kernel和initramfs的大小、刪減不必要的操作
+減少kernel和initramfs的大小、刪減不必要的操作，減肥減肥再減肥
+
+
 
 ## 測量
 
@@ -28,6 +32,8 @@
 
 ```sudo journalctl | grep Startup``` 這樣比較方便比較各次修改的結果
 
+
+
 ## UEFI
 
 這大概是最簡單的部分吧
@@ -35,6 +41,8 @@
 把不必要的功能關掉，然後開機順序保持目標在第一順位
 
 開機順序大多是影響最大的，尤其是網卡PXE的部分不需要就該移到後面
+
+
 
 ## GRUB
 
@@ -66,6 +74,8 @@
 
 font觀察```/boot/grub/grub.cfg```，預設是載入Arch Linux的/usr裡面的，但可以發現另一個是直接```loadfont unicode```，直接搜尋```/boot/grub/font```裡面的，修改成這種方式可以跳過載入額外的分區
 
+
+
 ## Linux kernel
 
 自行針對自己的硬體編譯Linux kernel，可以減少kernel image的大小，進而減少GRUB載入kernel的時間，少一些部件需要initialize也會讓kernel啟動更快，甚至可以增進一點效能
@@ -82,7 +92,7 @@ built-in的話在開機時就會initialize，會增加開機時間，module時�
 
 根據我的觀察kernel的解壓縮時間應該沒有被測量到，要注意
 
-編譯器的optimize level如果是Os或O2可以在config內調整，其餘需要編輯Makefile，搜尋O2去修改，常見有Os, O2, O3, Ofast，其中用Ofast跑分會小幅高一點，O2是預設值，Os能在和O2效能差不多的情況下把大小壓小，O3和Ofast會顯著增加大小
+編譯器的optimization level如果是Os或O2可以在config內調整，其餘需要編輯Makefile，搜尋O2去修改，常見有Os, O2, O3, Ofast，其中用Ofast跑分會小幅高一點，O2是預設值，Os能在和O2效能差不多的情況下把大小壓小，O3和Ofast會顯著增加大小
 
 Makefile的CFLAGS可以針對cpu加上```-mtune=<cpu-type>```來指定可用的指令集範圍，如果是generic在大多數機子上都能跑，native則是偵測當前機子上的，詳見gcc說明書
 
@@ -98,7 +108,11 @@ config的方法常見的有```make menuconfig```和```make nconfig```，後者�
 
 建議在桌機上編譯
 
+
+
 ## initramfs
+
+
 
 ## systemd
 
@@ -107,3 +121,23 @@ config的方法常見的有```make menuconfig```和```make nconfig```，後者�
 再來觀察```systemd-analyze blame```，不必要且沒有明確enable但自動載入的可以用```sudo systemctl mask```擋掉
 
 如果系統用久了就會發現```systemd-journal-flush.service```占很大的時間，但如果停用它journal就會留在/run而不是移到/var，關機了就沒了，解決方法是停用他但在其他時間手動flush，或是限制journal的大小避免花費太多時間，見```/etc/systemd/journald.conf```
+
+
+
+## quiet boot
+
+解決大部分的東西後，message也顯得不太重要了，vga console或framebuffer console的效能都不佳，甚至可能成為瓶頸，建議停用一些message來加速開機
+
+### kernel console printk
+
+直接在config中把printk的功能拿掉或許會減少很多空間，但這樣就很難debug了，建議留著，讓他只把錯誤訊息輸出在console就好
+
+確定kernel的cmdline有```quiet```這項，可以透過```/proc/cmdline```檢查，從```/etc/default/grub```的```GRUB_CMDLINE_LINUX```修改
+
+### systemd boot message
+
+如果cmdline有了quiet，systemd就只會在出錯時開始輸出，但有時候還是會有不需要又關不掉的功能的報錯，比如說找不到autofs4的module之類的，這時候還是可以在cmdline加入```systemd.show_status=false```強制關掉
+
+
+
+關了這些後，理想狀況下linux的開機輸出就差不多只剩initramfs的fsck了，就把他留著吧
