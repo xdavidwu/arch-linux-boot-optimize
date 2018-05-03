@@ -70,13 +70,15 @@ font觀察```/boot/grub/grub.cfg```，預設是載入Arch Linux的/usr裡面的�
 
 自行針對自己的硬體編譯Linux kernel，可以減少kernel image的大小，進而減少GRUB載入kernel的時間，少一些部件需要initialize也會讓kernel啟動更快，甚至可以增進一點效能
 
-在config時除了需不需要某項功能，還要考慮要將他built-in或者編譯成module
+在config時除了需不需要某項功能，還要考慮要將他built-in或者編譯成module，會需要的功能可以用官方kernel看自動載入了哪些modules再做刪減
 
 built-in的話在開機時就會initialize，會增加開機時間，module時則是在module載入時才會運行
 
-我的建議是將掛載root分區會需要的功能都built-in，其餘有需要的編成module，交由systemd自動載入，以減少kernel image大小
+我的建議是將掛載root分區和基本的顯示及鍵盤會需要的功能都built-in，比如說sata, ext4, efifb, atkbd等，其餘有需要的再編成module，比如說顯卡、網卡、藍芽、網路功能、iptables，甚至usb等，交由systemd自動載入，以減少kernel image大小
 
-除此之外還要衡量kernel和initramfs的壓縮方式，有xz, bzip2, gzip, lzo, lz4, lzma，其中xz壓縮率最高但解壓慢，lzo壓縮率最低但解壓極快，壓縮時的速度不需要考慮，各項可能需要分別嘗試衡量一下
+一些安全性的保護措施可以根據實際應用需求做衡量，這部分大多數都是無法編譯成modules的
+
+除此之外還要衡量kernel和initramfs的壓縮方式，有xz, bzip2, gzip, lzo, lz4, lzma，其中xz壓縮率最高但解壓慢，lzo壓縮率最低但解壓極快，壓縮時的速度不需要考慮，各項可能需要分別試驗衡量一下
 
 根據我的觀察kernel的解壓縮時間應該沒有被測量到，要注意
 
@@ -84,13 +86,15 @@ built-in的話在開機時就會initialize，會增加開機時間，module時�
 
 Makefile的CFLAGS可以針對cpu加上```-mtune=<cpu-type>```來指定可用的指令集範圍，如果是generic在大多數機子上都能跑，native則是偵測當前機子上的，詳見gcc說明書
 
-config需要注意的是hz的設定也會影響開機速度，建議保持預設的1000hz
+config需要特別注意的是hz的設定也可能會影響開機速度，建議保持預設的1000hz
 
 config的方法常見的有```make menuconfig```和```make nconfig```，後者比較新
 
 編譯時別忘了加```-j<n>```，其中n為最大同時jobs數，個人習慣實體核心數\*5，如果有-j後面不加數量就是不限制，gui或terminal可能會暫時當掉
 
 如果在別的地方編譯```make modules_install```可以用```INSTALL_MOD_PATH```變數指定複製到的路徑，方便把modules給分出來
+
+如果編譯後還想再刪減，但不知道該從哪裡下刀可以用```ls -l */built-in.o```查看各個類別的大小
 
 建議在桌機上編譯
 
