@@ -2,7 +2,7 @@
 
 ## 說明
 
-雖然是在Arch Linux上實驗的但想法都能套用在其他發行版上
+雖然是在Arch Linux上實驗的，但想法都能套用在其他發行版上
 
 ## 要點
 
@@ -38,9 +38,9 @@
 
 ## GRUB
 
-```loader```有包含從硬碟載入kernel和initramfs的時間，這部分影響最大
+```loader```有包含從硬碟載入kernel和initramfs的時間，這部分影響最大，見下方*Linux kernel*和*initramfs*的部分
 
-如果有多個entry，把目標設為預設，開機時壓著方向右或是enter就能消除人為的測量誤差
+如果有多個entry，把目標設為預設，開機時壓著方向右或是```<enter>```就能消除人為的測量誤差
 
 如果只有一個系統就直接把timeout拿掉吧
 
@@ -72,7 +72,7 @@ font觀察```/boot/grub/grub.cfg```，預設是載入Arch Linux的/usr裡面的�
 
 ## systemd
 
-首先當然是停用不必要的service，以```sudo systemctl disable```停用，列出已經啟用的service最簡單的方式就是利用bash-completion在disable後按兩次tab鍵
+首先當然是停用不必要的service，以```sudo systemctl disable```停用，列出已經啟用的service最簡單的方式就是利用bash-completion在disable後方按兩次```<tab>```鍵
 
 再來觀察```systemd-analyze blame```，不必要且沒有明確enable但自動載入的可以用```sudo systemctl mask```擋掉
 
