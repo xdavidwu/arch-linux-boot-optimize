@@ -112,7 +112,23 @@ config的方法常見的有```make menuconfig```和```make nconfig```，後者�
 
 ## initramfs
 
+針對自己編譯的kernel製作initramfs，減少initramfs的大小，進而降低bootloader載入initramfs和kernel解壓縮initramfs的時間
 
+initramfs是透過cpio及xz, bzip2, gzip, lzo, lz4, lzma其中一個壓縮過後的userspace，可以自己打包，但求方便和功能完整還是用Arch特有的```mkinitcpio```和```lsinitcpio```處理
+
+```lsinitcpio <initramfs>```會列出initramfs裡的所有檔案，加個```-x```會解壓縮到當前路徑，可以用來觀察內容
+
+```mkinitcpio -p <preset name>```是打包時用的指令
+
+可以由原本的/etc/mkinitcpio.conf和/etc/mkinitcpio.d/linux.preset複製一份出來修改，保留原本的initramfs-linux.img供出錯時使用
+
+### hooks
+
+在conf中可以設定需要的hooks，如果掛載root分區需要的模組都是built-in的，一般只會需要```base```就能開機，但建議還是加個```fsck```在掛載前自動檢查分區
+
+```autodetect```會依據當前系統的需求調整其餘hooks安裝的檔案，例如如果在```fsck```前有```autodetect```，就只會加入機子上root分區檔案系統的對應fsck工具
+
+```strip```會strip目前已經加入的library和binary
 
 ## systemd
 
@@ -129,6 +145,10 @@ config的方法常見的有```make menuconfig```和```make nconfig```，後者�
 ### remount
 
 如果把fsck交由initramfs實行，systemd remount一次root就顯得多餘了，確定cmdline有rootflags=rw等想要的mount flags後可以把/etc/fstab的root註解掉避免remount
+
+### mandb
+
+現在Arch的作法是每隔12h開機時更新一次mandb，但這通常很慢，一個作法是改回原本的方法，利用pacman hooks在有更動到manpages時更新，不過這把時間轉嫁給了pacman，在AUR上有mandb-ondemand，同樣是個pacman hook但利用systemd在背景執行不須等待，安裝它後mask man-db.service即可
 
 
 
