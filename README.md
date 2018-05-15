@@ -116,17 +116,19 @@ config的方法常見的有```make menuconfig```和```make nconfig```，後者�
 
 initramfs是透過cpio及xz, bzip2, gzip, lzo, lz4, lzma其中一個壓縮過後的userspace，可以自己打包，但求方便和功能完整還是用Arch特有的```mkinitcpio```和```lsinitcpio```處理
 
-```lsinitcpio <initramfs>```會列出initramfs裡的所有檔案，加個```-x```會解壓縮到當前路徑，可以用來觀察內容
+### mkinitcpio
 
 ```mkinitcpio -p <preset name>```是打包時用的指令
 
+```lsinitcpio <initramfs>```會列出initramfs裡的所有檔案，加個```-x```會解壓縮到當前路徑，可以用來觀察內容
+
 可以由原本的/etc/mkinitcpio.conf和/etc/mkinitcpio.d/linux.preset複製一份出來修改，保留原本的initramfs-linux.img供出錯時使用
 
-### FILES
+#### FILES
 
 如果kernel有built-in的功能需要firmware，在initramfs階段就需要提供，可以透過這一項加入
 
-### HOOKS
+#### HOOKS
 
 在conf中可以設定需要的hooks，如果掛載root分區需要的模組都是built-in的，一般只會需要```base```就能開機，但建議還是加個```fsck```在掛載前自動檢查分區
 
@@ -146,7 +148,7 @@ musl在Arch的package就叫做```musl```，裡面除了musl libc本身，還含�
 
 如果需要musl的ldd，例如在修改mkinitcpio找尋需要的libraries的部份，或是觀察linking，直接執行/lib/ld-musl-\*.so即可，也可以把它link成musl-ldd之類的方便使用
 
-### busybox
+#### [busybox](https://busybox.net/downloads/)
 
 busybox的config方式是採用Kconfig，執行```make menuconfig```就能調整需要的功能
 
@@ -154,13 +156,20 @@ busybox的config方式是採用Kconfig，執行```make menuconfig```就能調整
 
 busybox的```mount```, ```switch_root```, ```fsck```實做功能已經足夠在initramfs使用，可以改用busybox的實做減少實際需要的binaries數量
 
+其中busybox的mount能判別出ext系列，但沒有分辨是ext2, ext3或ext4，會從ext2開始試著mount，建議cmdline加入rootfstype直接指定
+
 busybox對於```blkid```就比較不全面了，只能查詢UUID，建議還是用一般的blkid
 
 其中比較需要注意的是long options的支援，musl的getopt不會找尋non-option後方的option，但是getopt_long會，所以建議要打開，會用到的例子是init在mount的時候是執行```mount -t <type> <dev> <dist> -o <options>```，如果用getopt會抓不到後面的-o項，造成busybox檢查args的數量時出錯 (getopt在這種情況下的表現其實POSIX沒有定義到)
 
-### linux-utils
+#### [util-inux](https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/)
 
-### e2fsprogs
+提供```blkid```
+
+#### [e2fsprogs](https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/)
+
+提供```e2fsck```，即```fsck.ext4```,```fsck.ext3```, ```fsck.ext2```
+
 
 
 ## systemd
