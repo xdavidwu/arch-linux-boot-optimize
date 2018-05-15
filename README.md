@@ -96,7 +96,7 @@ built-in 的話在開機時就會 initialize ，會增加開機時間， module 
 
 Makefile 的 CFLAGS 可以針對 cpu 加上 ```-mtune=<cpu-type>``` 來指定可用的指令集範圍，如果是 generic 在大多數機子上都能跑， native 則是偵測當前機子上的，詳見 gcc 說明書
 
-config 需要特別注意的是 hz 的設定也可能會影響開機速度，建議保持預設的 1000hz
+config 需要特別注意的是 CONFIG_HZ 的設定也可能會影響開機速度，建議保持預設的 1000
 
 config 的方法常見的有 ```make menuconfig``` 和 ```make nconfig``` ，後者比較新
 
@@ -107,6 +107,8 @@ config 的方法常見的有 ```make menuconfig``` 和 ```make nconfig``` ，後
 如果編譯後還想再刪減，但不知道該從哪裡下刀可以用 ```ls -l */built-in.o``` 查看各個類別的大小
 
 建議在桌機上編譯
+
+我的 [config](https://github.com/xdavidwu/arch-linux-boot-optimize/blob/master/toshiba-modulize-config) ，針對 TOSHIBA Z930
 
 
 
