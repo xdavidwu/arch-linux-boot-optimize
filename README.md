@@ -164,6 +164,8 @@ busybox 對於 ```blkid``` 就比較不全面了，只能查詢 UUID ，建議�
 
 其中比較需要注意的是 long options 的支援， musl 的 getopt 不會找尋 non-option 後方的 option ，但是 getopt_long 會，所以建議要打開，會用到的例子是 init 在 mount 的時候是執行 ```mount -t <type> <dev> <dist> -o <options>``` ，如果用 getopt 會抓不到後面的 -o 項，造成 busybox 檢查 args 的數量時出錯 ( getopt 在這種情況下的表現其實 POSIX 沒有定義到)
 
+我的 [config](https://github.com/xdavidwu/arch-linux-boot-optimize/blob/master/busybox-config)
+
 #### [util-inux](https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/)
 
 提供 ```blkid```
