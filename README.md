@@ -156,7 +156,7 @@ busybox的```mount```, ```switch_root```, ```fsck```實做功能已經足夠在i
 
 busybox對於```blkid```就比較不全面了，只能查詢UUID，建議還是用一般的blkid
 
-其中比較需要注意的是long options的支援，musl的getopt不會找尋non-option後方的option，但是getopt_long會，所以建議要打開，會用到的例子是init在mount的時候是執行mount -t <type> <dev> <dist> -o <options>，如果用getopt會抓不到後面的-o項，造成busybox檢查args的數量時出錯 (getopt在這種情況下的表現其實POSIX沒有定義到)
+其中比較需要注意的是long options的支援，musl的getopt不會找尋non-option後方的option，但是getopt_long會，所以建議要打開，會用到的例子是init在mount的時候是執行```mount -t <type> <dev> <dist> -o <options>```，如果用getopt會抓不到後面的-o項，造成busybox檢查args的數量時出錯 (getopt在這種情況下的表現其實POSIX沒有定義到)
 
 ### linux-utils
 
