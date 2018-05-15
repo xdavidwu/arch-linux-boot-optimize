@@ -144,7 +144,7 @@ hooks 的定義在 /lib/initcpio/install/ ( /libs/initcpio/hooks/ 是 initramfs 
 
 ### compiling binaries
 
-用 lsinitcpio 或是觀察 hooks 的腳本可以發現，裡面含有的 binaries ，以上方的 hooks 設定為例通常會有 ```busybox``` (來自mkinitcpio-busybox的版本), ```mount```, ```switch_root```, ```blkid```, ```fsck```, ```e2fsck``` ，都是由當前檔案系統複製出來的版本，使用了 glibc ，對於 initramfs 通常 musl 是更好的選擇，大小小很多，效能差異也不大， glibc 特有的功能在 initramfs 通常也都用不到，透過把 binaries 換成用 musl 自行編譯的版本會達到很棒的效果，在自行編譯時，也可以順便針對機子加入 ```-mtune=<cpu-type>``` 或是利用 ```-Os``` ，甚至自行斟酌 static link 或 dynamic link 來進一步減少 binaries 的大小
+用 lsinitcpio 或是觀察 hooks 的腳本可以發現，裡面含有的 binaries ，以上方的 hooks 設定為例通常會有 ```busybox``` (來自mkinitcpio-busybox的版本), ```mount```, ```switch_root```, ```blkid```, ```fsck```, ```e2fsck ( fsck.ext4, fsck.ext3, fsck.ext2 )```, ```kmod ( {dep,ins,rm,ls}mod mod{probe,info} )``` ，都是由當前檔案系統複製出來的版本，使用了 glibc ，對於 initramfs 通常 musl 是更好的選擇，大小小很多，效能差異也不大， glibc 特有的功能在 initramfs 通常也都用不到，透過把 binaries 換成用 musl 自行編譯的版本會達到很棒的效果，在自行編譯時，也可以順便針對機子加入 ```-mtune=<cpu-type>``` 或是利用 ```-Os``` ，甚至自行斟酌 static link 或 dynamic link 來進一步減少 binaries 的大小
 
 我採用的策略是使用 musl ，加上 -mtune 再加上 -Os ， libc 採取 dynamic link 其餘採取 static link
 
@@ -152,13 +152,15 @@ musl 在 Arch 的 package 就叫做 ```musl``` ，裡面除了 musl libc 本身�
 
 如果需要 musl 的 ldd ，例如在修改 mkinitcpio 找尋需要的 libraries 的部份，或是觀察 linking ，直接執行 /lib/ld-musl-\*.so 即可，也可以把它 link 成 musl-ldd 之類的方便使用
 
+kmod 的部份其實大部份只會用到 modprobe ， fsck 也只會用到相對應的
+
 #### [busybox](https://busybox.net/downloads/)
 
 busybox 的 config 方式是採用 Kconfig ，執行 ```make menuconfig``` 就能調整需要的功能
 
 觀察 mkinitcpio 的 init 腳本就能找出所有需要的指令，可以減少到只剩需要的功能，也可以留下一些基本的指令用來除錯
 
-busybox 的 ```mount```, ```switch_root```, ```fsck``` 實做功能已經足夠在 initramfs 使用，可以改用 busybox 的實做減少實際需要的 binaries 數量
+busybox 的 ```mount```, ```switch_root```, ```modprobe``` 實做功能已經足夠在 initramfs 使用，可以改用 busybox 的實做減少實際需要的 binaries 數量
 
 其中 busybox 的 mount 能判別出 ext 系列，但沒有分辨是 ext2, ext3 或 ext4 ，會從 ext2 開始試著 mount ，建議 cmdline 加入 rootfstype 直接指定
 
@@ -170,11 +172,23 @@ busybox 對於 ```blkid``` 就比較不全面了，只能查詢 UUID ，建議�
 
 #### [util-inux](https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/)
 
-提供 ```blkid```
+提供 ```blkid```, ```fsck```
+
+我的 config:
+
+```shell
+ ./configure --without-python --without-user --without-libz --without-cap-ng --without-tinfo --without-udev --without-util --without-ncursesw --without-ncurses --without-systemd --disable-shared CC="musl-gcc -no-pie" CFLAGS="-mtune=ivybridge -Os"
+ ```
 
 #### [e2fsprogs](https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/)
 
 提供 ```e2fsck``` ，即 ```fsck.ext4```,```fsck.ext3```, ```fsck.ext2```
+
+我的 config:
+
+```shell
+CC="musl-gcc -no-pie" CFLAGS="-mtune=ivybridge -Os" ./configure 
+```
 
 
 
