@@ -122,13 +122,46 @@ initramfs是透過cpio及xz, bzip2, gzip, lzo, lz4, lzma其中一個壓縮過後
 
 可以由原本的/etc/mkinitcpio.conf和/etc/mkinitcpio.d/linux.preset複製一份出來修改，保留原本的initramfs-linux.img供出錯時使用
 
-### hooks
+### FILES
+
+如果kernel有built-in的功能需要firmware，在initramfs階段就需要提供，可以透過這一項加入
+
+### HOOKS
 
 在conf中可以設定需要的hooks，如果掛載root分區需要的模組都是built-in的，一般只會需要```base```就能開機，但建議還是加個```fsck```在掛載前自動檢查分區
 
+hooks的定義在/lib/initcpio/install/ (/libs/initcpio/hooks/是initramfs裡的模組，透過hooks加入initramfs)
+
 ```autodetect```會依據當前系統的需求調整其餘hooks安裝的檔案，例如如果在```fsck```前有```autodetect```，就只會加入機子上root分區檔案系統的對應fsck工具
 
-```strip```會strip目前已經加入的library和binary
+```strip```會strip目前已經加入的library和binary，刪除不必要的除錯用資訊以減少大小
+
+所以，一般建議hooks為```(base autodetect fsck strip)```
+
+### compiling binaries
+
+用lsinitcpio或是觀察hooks的腳本可以發現，裡面含有的binaries，以上方的hooks設定為例通常會有```busybox```(來自mkinitcpio-busybox的版本), ```mount```, ```switch_root```, ```blkid```, ```fsck```, ```e2fsck```，都是由當前檔案系統複製出來的版本，使用了glibc，對於initramfs通常musl是更好的選擇，大小小很多，效能差異也不大，glibc特有的功能在initramfs通常也都用不到，透過把binaries換成用musl自行編譯的版本會達到很棒的效果，在自行編譯時，也可以順便針對機子加入```-mtune=<cpu-type>```或是利用```-Os```，甚至自行斟酌static link或dynamic link來進一步減少binaries的大小
+
+musl在Arch的package就叫做```musl```，裡面除了musl libc本身，還含有```musl-gcc```指令(gcc的wrapper)，方便使用musl編譯，通常在configure時把變數CC設為musl-gcc，或是編譯時到Makefile將CC設為musl-gcc即可
+
+如果需要musl的ldd，例如在修改mkinitcpio找尋需要的libraries的部份，或是觀察linking，直接執行/lib/ld-musl-\*.so即可，也可以把它link成musl-ldd之類的方便使用
+
+### busybox
+
+busybox的config方式是採用Kconfig，執行```make menuconfig```就能調整需要的功能
+
+觀察mkinitcpio的init腳本就能找出所有需要的指令，可以減少到只剩需要的功能，也可以留下一些基本的指令用來除錯
+
+busybox的```mount```, ```switch_root```, ```fsck```實做功能已經足夠在initramfs使用，可以改用busybox的實做減少實際需要的binaries數量
+
+busybox對於```blkid```就比較不全面了，只能查詢UUID，建議還是用一般的blkid
+
+其中比較需要注意的是long options的支援，musl的getopt不會找尋non-option後方的option，但是getopt_long會，所以建議要打開，會用到的例子是init在mount的時候是執行mount -t <type> <dev> <dist> -o <options>，如果用getopt會抓不到後面的-o項，造成busybox檢查args的數量時出錯 (getopt在這種情況下的表現其實POSIX沒有定義到)
+
+### linux-utils
+
+### e2fsprogs
+
 
 ## systemd
 
