@@ -32,7 +32,19 @@
 
 ```sudo journalctl | grep Startup``` 這樣比較方便比較各次修改的結果
 
+## 測試成果
 
+kernel | vmlinuz size | human readable size
+-|-|-
+4.17.8-1-ARCH | 5326800 | 5.1M
+4.17.8-tekokomputilo| 3317808 | 3.2M
+
+kernel | initcpio type | initcpio libc | initcpio hooks | initramfs size | human readable size 
+-|-|-|-|-|-
+4.17.8-1-ARCH | default | glibc | base udev autodetect modconf block filesystems keyboard fsck | 7831599 | 7.5M
+4.17.8-1-ARCH | fallback | glibc | base udev modconf block filesystems keyboard fsck | 28796670 | 28M
+4.17.8-tekokomputilo | default | musl | base-musl autodetect fsck-musl strip | 1288348 | 1.3M
+4.17.8-tekokomputilo | fallback | musl | base-musl fsck-musl strip | 3595931 | 3.5M
 
 ## UEFI
 
