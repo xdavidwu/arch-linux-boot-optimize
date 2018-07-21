@@ -46,6 +46,10 @@ kernel | initcpio type | initcpio libc | initcpio hooks | initramfs size | human
 4.17.8-tekokomputilo | default | musl | base-musl autodetect fsck-musl strip | 1288348 | 1.3M
 4.17.8-tekokomputilo | fallback | musl | base-musl fsck-musl strip | 3595931 | 3.5M
 
+kernel | systemd-analyze
+-|-
+4.17.8-tekokomputilo |  Startup finished in 3.813s (firmware) + 661ms (loader) + 581ms (kernel) + 860ms (userspace) = 5.917s.
+
 ## UEFI
 
 這大概是最簡單的部分吧
