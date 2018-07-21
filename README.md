@@ -190,7 +190,15 @@ busybox 對於 ```blkid``` 就比較不全面了，只能查詢 UUID ，建議�
 CC="musl-gcc -no-pie" CFLAGS="-mtune=ivybridge -Os" ./configure 
 ```
 
+### Editing mkinitcpio scripts
 
+#### HOOKS
+
+可以透過修改 install hooks 的名稱方便讓原汁原味的 initcpio 和修改版並存 例如 (base-musl)[base-musl], (fsck-musl)[fsck-musl]
+
+#### functions
+
+`/lib/initcpio/functions` 包含 mkinitcpio scripts 常用的 functions, 其中要注意的是 `add_binary` 內含利用 `ldd` 找出需要的 libraries 的部份, 需要[加入 `musl-ldd`](https://github.com/xdavidwu/arch-linux-boot-optimize/blob/51369f083057b98bb1655ddcfe337ea1fa3ef43c/functions#L601) 處理 musl 的部份
 
 ## systemd
 
