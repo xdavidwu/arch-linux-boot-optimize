@@ -48,7 +48,8 @@ kernel | initcpio type | initcpio libc | initcpio hooks | initramfs size | human
 
 kernel | systemd-analyze
 -|-
-4.17.8-tekokomputilo |  Startup finished in 3.813s (firmware) + 661ms (loader) + 581ms (kernel) + 860ms (userspace) = 5.917s.
+4.17.8-1-ARCH | Startup finished in 3.920s (firmware) + 1.000s (loader) + 1.362s (kernel) + 771ms (userspace) = 7.054s
+4.17.8-tekokomputilo |  Startup finished in 3.813s (firmware) + 661ms (loader) + 581ms (kernel) + 860ms (userspace) = 5.917s
 
 ## UEFI
 
