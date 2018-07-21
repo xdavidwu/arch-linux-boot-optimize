@@ -194,7 +194,7 @@ CC="musl-gcc -no-pie" CFLAGS="-mtune=ivybridge -Os" ./configure
 
 #### HOOKS
 
-可以透過修改 install hooks 的名稱方便讓原汁原味的 initcpio 和修改版並存 例如 (base-musl)[https://github.com/xdavidwu/arch-linux-boot-optimize/blob/master/base-musl], (fsck-musl)[https://github.com/xdavidwu/arch-linux-boot-optimize/blob/master/fsck-musl]
+可以透過修改 install hooks 的名稱方便讓原汁原味的 initcpio 和修改版並存 例如 [base-musl](https://github.com/xdavidwu/arch-linux-boot-optimize/blob/master/base-musl), [fsck-musl](https://github.com/xdavidwu/arch-linux-boot-optimize/blob/master/fsck-musl)
 
 #### functions
 
