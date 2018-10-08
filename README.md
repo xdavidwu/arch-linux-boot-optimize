@@ -253,4 +253,16 @@ CC="musl-gcc -no-pie" CFLAGS="-mtune=ivybridge -Os" ./configure
 
 如果 cmdline 有了 quiet ， systemd 就只會在出錯時開始輸出，但有時候還是會有不需要又關不掉的功能的報錯，比如說找不到 autofs4 的 module 之類的，這時候還是可以在 cmdline 加入 ```systemd.show_status=false``` 強制關掉
 
-關了這些後，理想狀況下linux的開機輸出就差不多只剩initramfs的fsck了，就把他留著吧
+關了這些後，理想狀況下 linux 的開機輸出就差不多只剩 initramfs 的 fsck 了，就把他留著吧
+
+## i915
+
+如果使用 Intel 內顯， kernel module `i915` 有個 parameter 叫做 fastboot ， modinfo 如下：
+
+> parm:           fastboot:Try to skip unnecessary mode sets at boot time (default: false) (bool)
+
+實測打開他並不太影響 `systemd-analyze` 測出來的數值，但會解決開機時螢幕暗約一秒的問題，比較早看到 login prompt ，達到實際使用上的加速
+
+雖然 modinfo 顯示出這項 parameter 是 true/false 的組合，我使用的版本卻是吃 Y/N 而不是 true/false
+
+改之前觀察 `/sys/module/i915/parameters/fastboot` 可以觀察用的是哪一種，或者先試一種看有沒有噴錯也是可行
