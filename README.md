@@ -263,6 +263,8 @@ CC="musl-gcc -no-pie" CFLAGS="-mtune=ivybridge -Os" ./configure
 
 實測打開他並不太影響 `systemd-analyze` 測出來的數值，但會解決開機時螢幕暗約一秒的問題，比較早看到 login prompt ，達到實際使用上的加速
 
-雖然 modinfo 顯示出這項 parameter 是 true / false 的組合，我使用的版本卻是吃 Y / N 而不是 true / false
+Linux kernel 5.1 上的 i915 已改為 1 / 0 組合, 預設為 -1 (per chip default)
+
+> parm:           fastboot:Try to skip unnecessary mode sets at boot time (0=disabled, 1=enabled) Default: -1 (use per-chip default) (int)
 
 改之前觀察 `/sys/module/i915/parameters/fastboot` 可以看出用的是哪一種，或者先試一種看有沒有噴錯也是可行
